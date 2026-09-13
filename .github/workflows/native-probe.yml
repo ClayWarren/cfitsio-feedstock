@@ -1,7 +1,7 @@
-name: CFITSIO native Windows ARM64
+name: CFITSIO 4.6.4 native Windows ARM64
 on:
   push:
-    branches: [codex/cfitsio-arm64-probe]
+    branches: [codex/cfitsio464-arm64-probe]
 permissions:
   contents: read
 jobs:
@@ -39,4 +39,4 @@ jobs:
           name: cfitsio-arm64-package
           path: C:\bld\win-arm64\cfitsio-*.conda
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 90
