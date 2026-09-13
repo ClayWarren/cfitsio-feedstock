@@ -15,6 +15,20 @@ jobs:
         config: [win_arm64_]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Fetch and verify the official source archive
+        shell: pwsh
+        run: |
+          $cache = 'C:\bld\src_cache'
+          New-Item -ItemType Directory -Force $cache | Out-Null
+          $archive = "$cache\cfitsio-4.6.4_227b637b91.tar.gz"
+          curl.exe --fail --location --retry 3 --retry-all-errors --max-time 120 --dump-header "$env:RUNNER_TEMP\cfitsio-source-headers.txt" --output $archive https://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio-4.6.4.tar.gz
+          $fetchExit = $LASTEXITCODE
+          Get-Content "$env:RUNNER_TEMP\cfitsio-source-headers.txt"
+          if ($fetchExit -ne 0) { throw "Official source fetch failed: $fetchExit" }
+          $expected = '227b637b91c9820ea96f39a65eb087f053de567d82f4338e2884f123f8183c55'
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne $expected) {
+            throw 'Official source checksum mismatch'
+          }
       - name: Build and test CFITSIO
         shell: cmd
         env:
